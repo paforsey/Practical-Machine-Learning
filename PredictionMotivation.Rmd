@@ -60,7 +60,6 @@ The goal of your project is to predict the manner in which they did the exercise
 
     zero <- nearZeroVar(training, saveMetrics=T);
     training <- training[, !zero$nzv];  # Remove "Zero Variance" Predictors
-
 ```
 
 
@@ -95,7 +94,7 @@ PCA will be used during pre-processing as several variables are highly correlate
 
 
 ###Model Development
-A total of seven (7) modeling methodlogies were used.
+A total of seven (7) modeling methodlogies were evaluted:
 
 **Methodologies**
 
@@ -184,7 +183,6 @@ The Random Forest model has the highest accuracy with 98.95%.
     sum(testSetResults$rfPredRight, na.rm=T)/dim(testSetResults)[1];
     sum(testSetResults$svmRadialPredRight, na.rm=T)/dim(testSetResults)[1];
     sum(testSetResults$logitBoostedPredRight, na.rm=T)/dim(testSetResults)[1];
-
 ```
 
 The top three (3) performaing models in terms of accuracy are as follows:
