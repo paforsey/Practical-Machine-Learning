@@ -200,6 +200,9 @@ The top three (3) performaing models in terms of accuracy are as follows:
   
 ####Model Validation
 ```{r echo=T, cache=F, eval=F}
+#   Validation Set
+    rfValid <- predict(rf, validation);  # Random Forest
+
 #   Model Validation
     pml_write_files = function(x){
         n = length(x)
@@ -209,7 +212,7 @@ The top three (3) performaing models in terms of accuracy are as follows:
         }
     }
     
-    pml_write_files(rfPred);
+    pml_write_files(rfValid);
 ```
   
   
