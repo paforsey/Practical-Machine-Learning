@@ -1,0 +1,221 @@
+##Practical Machine Learning Project
+
+###Overview
+
+---
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).  
+
+
+###Objective
+
+---
+
+The goal of your project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. You may use any of the other variables to predict with. You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did. You will also use your prediction model to predict 20 different test cases. 
+
+1. Your submission should consist of a link to a Github repo with your R markdown and compiled HTML file describing your analysis. Please constrain the text of the writeup to < 2000 words and the number of figures to be less than 5.
+2. You should also apply your machine learning algorithm to the 20 test cases available in the test data above. Please submit your predictions in appropriate format to the programming assignment for automated grading.  
+
+
+###Machine Learning
+
+---
+
+####Load Libraries
+```{r echo=T, cache=T, eval=F}
+#   Load Library
+    library(abind);
+    library(arm);
+    library(klaR)
+    library(caret);
+    library(caTools);
+    library(kernlab);
+    library(rattle);
+    library(randomForest);
+    library(rpart);
+    library(nnet);
+
+#   Enable Multi-Core Processing
+    library(doParallel);
+    cluster <- makeCluster(detectCores());
+    registerDoParallel(cluster);
+```
+  
+  
+####Data Processing
+```{r echo=T, cache=T, eval=F}
+#   Data Processing
+    set.seed(777);  # Set Random Seed
+    dataset <- read.csv("pml-training.csv", na.strings=c("NA","#DIV/0!",""));
+    validation <- read.csv("pml-testing.csv", na.strings=c("NA","#DIV/0!",""));
+
+    inTrain <- createDataPartition(y=dataset$classe, p=0.60, list=F);
+    training <- dataset[inTrain, ];
+    testing <- dataset[-inTrain, ];
+    
+    training <- subset(training, select = c(8:11, 37:49, 60:68, 84:86, 102, 
+        113:124, 140, 151:160));  # Remove Unused Variables
+    training[is.na(training)] <- 0;  # Replace NAs in Dataset with 0
+    rm(dataset, inTrain);  # Remove Unused Datasets
+
+    zero <- nearZeroVar(training, saveMetrics=T);
+    training <- training[, !zero$nzv];  # Remove "Zero Variance" Predictors
+
+```
+
+
+####Correlation Analysis
+```{r echo=T, cache=T, eval=F}
+#   Correlation Analysis
+    correlation <- caret::findCorrelation(cor(training[, 1:52]), cutoff=0.80);
+    correlationMatrix <- data.frame(cor(training[, 1:52]));
+    names(training)[correlation];
+```
+
+The results from the correlation analysis are as follows:
+
+**Results**
+
+| Number | Variable         |
+|:-------|:-----------------|
+| 1      | accel_belt_z     |
+| 2      | roll_belt        |
+| 3      | accel_belt_y     |
+| 4      | accel_dumbbell_z |
+| 5      | accel_belt_x     |
+| 6      | pitch_belt       |
+| 7      | accel_arm_x      |
+| 8      | accel_dumbbell_x |
+| 9      | magnet_arm_y     |
+| 10     | gyros_arm_y      |
+| 11     | gyros_forearm_z  |
+| 12     | gyros_dumbbell_x |
+
+PCA will be used during pre-processing as several variables are highly correlated.  In additon, 7-fold cross validation will be used in order to minimize overfitting and reduce the out of sample error rate. 
+
+
+###Model Development
+A total of seven (7) modeling methodlogies were used.
+
+**Methodologies**
+
+| Number | Model                                     |
+|:-------|:------------------------------------------|
+| 1      | Random Forest                             |
+| 2      | Support Vector Machine - Liear            |
+| 3      | Suppoart Vector Machine - Radial          |
+| 4      | Neural Net                                |
+| 5      | Bayes Generalized Linear Model            |
+| 6      | Logit Boosted Model                       |
+| 7      | Recursive Partitioning & Regression Trees |
+|        |                                           |
+
+```{r echo=T, cache=T, eval=F}
+#   Pre-Processing & Cross Validation Settings
+    trControl <- trainControl(method="cv", number=7, verboseIter=F, preProcOptions="pca",
+        allowParallel=T);
+
+#   Model Development & Analysis
+    rf <- train(classe~., data=training, method="rf", 
+        trControl=trControl);  # Random Forest
+    svmLinear <- train(classe~., data=training, method="svmLinear", 
+        trControl=trControl);  # Support Vector Machine - Linear
+    svmRadial <- train(classe~., data=training, method="svmRadial", 
+        trControl=trControl);  # Support Vector Machine - Radial
+    nnet <- train(classe~., data=training, method="nnet", 
+        trControl=trControl, verbose=F);  # Neural Net
+    bayesglm <- train(classe~., data=training, method="bayesglm", 
+        trControl=trControl);  # Bayes Generalized Linear Model
+    logitBoosted <- train(classe~., data=training, method="LogitBoost", 
+        trControl=trControl);  # Logit Boosted Model
+    rpart <- train(classe~., data=training, method="rpart", 
+        trControl=trControl);  # Recursive Partitioning & Regression Trees  
+```
+
+
+####Model Analysis
+```{r echo=T, cache=T, eval=F}
+#   Model Accuracy
+    max(rf$results$Accuracy);  # Random Forest
+    max(svmLinear$results$Accuracy);  # Support Vector Machine - Linear
+    max(svmRadial$results$Accuracy);  # Support Vector Machine - Radial
+    max(nnet$results$Accuracy);  # Neural Net
+    max(bayesglm$results$Accuracy);  # Bayes Generalized Linear Model
+    max(logitBoosted$results$Accuracy);  # Logit Boosted Model
+    max(rpart$results$Accuracy);  # Recursive Partitioning & Regression Trees
+```
+
+**Rank Order by Accuracy**
+
+| Rank | Model                                     | Accuracy  |
+|:-----|:------------------------------------------|:----------|
+| 1    | Random Forest                             | 0.9894700 |
+| 2    | Suppoart Vector Machine - Radial          | 0.9183047 |
+| 3    | Logit Boosted Model                       | 0.8927242 |
+| 4    | Support Vector Machine - Liear            | 0.7815063 |
+| 5    | Recursive Partitioning & Regression Trees | 0.5206415 |
+| 6    | Neural Net                                | 0.4198281 |
+| 7    | Bayes Generalized Linear Model            | 0.4006461 |
+
+The Random Forest model has the highest accuracy with 98.95%.
+
+####Prediction on Test Set
+```{r echo=T, cache=T, eval=F}
+#   Prediction on Test Set: Top 3 Models
+    rfPred <- predict(rf, testing);  # Random Forest
+    svmRadialPred <- predict(svmRadial, testing);  # Support Vector Machine - Radial
+    logitBoostedPred <- predict(logitBoosted, testing);  # Logit Boosted Model
+
+#   Model Accuracy: Test Set
+    testSetResults <- data.frame(cbind(as.character(testing$classe), as.character(rfPred),     
+        as.character(svmRadialPred), as.character(logitBoostedPred)));
+    
+    colnames(testSetResults) <- c("classe", "rfPred", "svmRadialPred", "logitBoostedPred");
+
+    testSetResults$rfPredRight[testSetResults$classe == testSetResults$rfPred] <- 1;
+    testSetResults$rfPredRight[testSetResults$classe != testSetResults$rfPred] <- 0;
+
+    testSetResults$svmRadialPredRight[testSetResults$classe == testSetResults$svmRadialPred] <- 1;
+    testSetResults$svmRadialPredRight[testSetResults$classe != testSetResults$svmRadialPred] <- 0;
+
+    testSetResults$logitBoostedPredRight[testSetResults$classe == testSetResults$logitBoostedPred] <- 1;
+    testSetResults$logitBoostedPredRight[testSetResults$classe != testSetResults$logitBoostedPred] <- 0;
+
+    sum(testSetResults$rfPredRight, na.rm=T)/dim(testSetResults)[1];
+    sum(testSetResults$svmRadialPredRight, na.rm=T)/dim(testSetResults)[1];
+    sum(testSetResults$logitBoostedPredRight, na.rm=T)/dim(testSetResults)[1];
+
+```
+
+The top three (3) performaing models in terms of accuracy are as follows:
+
+**TopPerforming Models**
+
+| Rank | Model                                     | Accuracy  |
+|:-----|:------------------------------------------|:----------|
+| 1    | Random Forest                             | 0.9900586 |
+| 2    | Suppoart Vector Machine - Radial          | 0.9209788 |
+| 3    | Logit Boosted Model                       | 0.7603875 |
+
+  
+####Model Validation
+```{r echo=T, cache=F, eval=F}
+#   Model Validation
+    pml_write_files = function(x){
+        n = length(x)
+        for(i in 1:n){
+            filename = paste0("problem_id_", i, ".txt")
+            write.table(x[i], file=filename, quote=FALSE, row.names=FALSE, col.names=FALSE)
+        }
+    }
+    
+    pml_write_files(rfPred);
+```
+  
+  
+###Conclusion
+
+---
+
+The Random Forest model has the highest accuracy for both the training and test sets with 98.95% and 99.00% respectively.
+
