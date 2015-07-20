@@ -89,6 +89,7 @@ The results from the correlation analysis are as follows:
 | 10     | gyros_arm_y      |
 | 11     | gyros_forearm_z  |
 | 12     | gyros_dumbbell_x |
+|        |                  |
 
 PCA will be used during pre-processing as several variables are highly correlated.  In additon, 7-fold cross validation will be used in order to minimize overfitting and reduce the out of sample error rate. 
 
@@ -155,6 +156,7 @@ A total of seven (7) modeling methodlogies were evaluted:
 | 5    | Recursive Partitioning & Regression Trees | 0.5206415 |
 | 6    | Neural Net                                | 0.4198281 |
 | 7    | Bayes Generalized Linear Model            | 0.4006461 |
+|      |                                           |           |
 
 The Random Forest model has the highest accuracy with 98.95%.
 
@@ -187,15 +189,15 @@ The Random Forest model has the highest accuracy with 98.95%.
 
 The top three (3) performaing models in terms of accuracy are as follows:
 
-**TopPerforming Models**
+**Top Performing Models**
 
 | Rank | Model                                     | Accuracy  |
 |:-----|:------------------------------------------|:----------|
 | 1    | Random Forest                             | 0.9900586 |
 | 2    | Suppoart Vector Machine - Radial          | 0.9209788 |
 | 3    | Logit Boosted Model                       | 0.7603875 |
+|      |                                           |           |
 
-  
 ####Model Validation
 ```{r echo=T, cache=F, eval=F}
 #   Validation Set
