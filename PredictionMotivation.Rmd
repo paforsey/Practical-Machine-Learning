@@ -160,7 +160,7 @@ A total of seven (7) modeling methodlogies were evaluted:
 
 The Random Forest model has the highest accuracy with 98.95%.
 
-####Prediction on Test Set
+####Out of Sample Error
 ```{r echo=T, cache=T, eval=F}
 #   Prediction on Test Set: Top 3 Models
     rfPred <- predict(rf, testing);  # Random Forest
