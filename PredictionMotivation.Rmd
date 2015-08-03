@@ -150,7 +150,7 @@ A total of seven (7) modeling methodlogies were evaluted:
 | Rank | Model                                     | Accuracy  |
 |:-----|:------------------------------------------|:----------|
 | 1    | Random Forest                             | 0.9894700 |
-| 2    | Suppoart Vector Machine - Radial          | 0.9183047 |
+| 2    | Support Vector Machine - Radial           | 0.9183047 |
 | 3    | Logit Boosted Model                       | 0.8927242 |
 | 4    | Support Vector Machine - Liear            | 0.7815063 |
 | 5    | Recursive Partitioning & Regression Trees | 0.5206415 |
