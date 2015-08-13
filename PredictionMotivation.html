@@ -125,7 +125,6 @@ img {
     correlationMatrix &lt;- data.frame(cor(training[, 1:52]));
     names(training)[correlation];</code></pre>
 <p>The results from the correlation analysis are as follows:</p>
-<p><strong>Results</strong></p>
 <table>
 <thead>
 <tr class="header">
@@ -188,13 +187,11 @@ img {
 </tr>
 </tbody>
 </table>
-<p>PCA will be used during pre-processing as several variables are highly correlated. In additon, 7-fold cross validation will be used in order to minimize overfitting and reduce the out of sample error rate.</p>
 </div>
 </div>
 <div id="model-development" class="section level3">
 <h3>Model Development</h3>
 <p>A total of seven (7) modeling methodlogies were evaluted:</p>
-<p><strong>Methodologies</strong></p>
 <table>
 <thead>
 <tr class="header">
@@ -213,7 +210,7 @@ img {
 </tr>
 <tr class="odd">
 <td align="left">3</td>
-<td align="left">Support Vector Machine - Radial</td>
+<td align="left">Suppoart Vector Machine - Radial</td>
 </tr>
 <tr class="even">
 <td align="left">4</td>
@@ -237,11 +234,17 @@ img {
 </tr>
 </tbody>
 </table>
+</div>
+<div id="principal-component-analysis-cross-validation" class="section level3">
+<h3>Principal Component Analysis &amp; Cross Validation</h3>
 <pre class="r"><code>#   Pre-Processing &amp; Cross Validation Settings
     trControl &lt;- trainControl(method=&quot;cv&quot;, number=7, verboseIter=F, preProcOptions=&quot;pca&quot;,
-        allowParallel=T);
-
-#   Model Development &amp; Analysis
+        allowParallel=T);</code></pre>
+<p>Principal Component Analysis (PCA) was be used during pre-processing as several variables were highly correlated. In additon, 7-fold cross validation was used in order to minimize overfitting and reduce the out of sample error rate.</p>
+</div>
+<div id="model-development-1" class="section level3">
+<h3>Model Development</h3>
+<pre class="r"><code>#   Model Development
     rf &lt;- train(classe~., data=training, method=&quot;rf&quot;, 
         trControl=trControl);  # Random Forest
     svmLinear &lt;- train(classe~., data=training, method=&quot;svmLinear&quot;, 
@@ -266,7 +269,7 @@ img {
     max(bayesglm$results$Accuracy);  # Bayes Generalized Linear Model
     max(logitBoosted$results$Accuracy);  # Logit Boosted Model
     max(rpart$results$Accuracy);  # Recursive Partitioning &amp; Regression Trees</code></pre>
-<p><strong>Rank Order by Accuracy</strong></p>
+<p>Each model was rank ordered in terms of accuracy:</p>
 <table>
 <thead>
 <tr class="header">
@@ -283,7 +286,7 @@ img {
 </tr>
 <tr class="even">
 <td align="left">2</td>
-<td align="left">Suppoart Vector Machine - Radial</td>
+<td align="left">Support Vector Machine - Radial</td>
 <td align="left">0.9183047</td>
 </tr>
 <tr class="odd">
@@ -320,7 +323,7 @@ img {
 </table>
 <p>The Random Forest model has the highest accuracy with 98.95%.</p>
 </div>
-<div id="prediction-on-test-set" class="section level4">
+<div id="out-of-sample-error" class="section level4">
 <h4>Out of Sample Error</h4>
 <pre class="r"><code>#   Prediction on Test Set: Top 3 Models
     rfPred &lt;- predict(rf, testing);  # Random Forest
@@ -346,7 +349,6 @@ img {
     sum(testSetResults$svmRadialPredRight, na.rm=T)/dim(testSetResults)[1];
     sum(testSetResults$logitBoostedPredRight, na.rm=T)/dim(testSetResults)[1];</code></pre>
 <p>The top three (3) performaing models in terms of accuracy are as follows:</p>
-<p><strong>Top Performing Models</strong></p>
 <table>
 <thead>
 <tr class="header">
@@ -363,7 +365,7 @@ img {
 </tr>
 <tr class="even">
 <td align="left">2</td>
-<td align="left">Suppoart Vector Machine - Radial</td>
+<td align="left">Support Vector Machine - Radial</td>
 <td align="left">0.9209788</td>
 </tr>
 <tr class="odd">
