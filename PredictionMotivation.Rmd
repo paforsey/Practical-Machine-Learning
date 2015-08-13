@@ -1,26 +1,26 @@
 ##Practical Machine Learning Project
-
+  
 ###Overview
-
+  
 ---
-
+  
 Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).  
-
-
+  
+  
 ###Objective
-
+  
 ---
-
+  
 The goal of your project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. You may use any of the other variables to predict with. You should create a report describing how you built your model, how you used cross validation, what you think the expected out of sample error is, and why you made the choices you did. You will also use your prediction model to predict 20 different test cases. 
-
+  
 1. Your submission should consist of a link to a Github repo with your R markdown and compiled HTML file describing your analysis. Please constrain the text of the writeup to < 2000 words and the number of figures to be less than 5.
 2. You should also apply your machine learning algorithm to the 20 test cases available in the test data above. Please submit your predictions in appropriate format to the programming assignment for automated grading.  
-
-
+  
+  
 ###Machine Learning
-
+  
 ---
-
+  
 ####Load Libraries
 ```{r echo=T, cache=T, eval=F}
 #   Load Library
@@ -61,8 +61,8 @@ The goal of your project is to predict the manner in which they did the exercise
     zero <- nearZeroVar(training, saveMetrics=T);
     training <- training[, !zero$nzv];  # Remove "Zero Variance" Predictors
 ```
-
-
+  
+  
 ####Correlation Analysis
 ```{r echo=T, cache=T, eval=F}
 #   Correlation Analysis
@@ -70,11 +70,9 @@ The goal of your project is to predict the manner in which they did the exercise
     correlationMatrix <- data.frame(cor(training[, 1:52]));
     names(training)[correlation];
 ```
-
+  
 The results from the correlation analysis are as follows:
-
-**Results**
-
+  
 | Number | Variable         |
 |:-------|:-----------------|
 | 1      | accel_belt_z     |
@@ -91,14 +89,10 @@ The results from the correlation analysis are as follows:
 | 12     | gyros_dumbbell_x |
 |        |                  |
 
-PCA will be used during pre-processing as several variables are highly correlated.  In additon, 7-fold cross validation will be used in order to minimize overfitting and reduce the out of sample error rate. 
-
-
+  
 ###Model Development
 A total of seven (7) modeling methodlogies were evaluted:
-
-**Methodologies**
-
+  
 | Number | Model                                     |
 |:-------|:------------------------------------------|
 | 1      | Random Forest                             |
@@ -110,12 +104,19 @@ A total of seven (7) modeling methodlogies were evaluted:
 | 7      | Recursive Partitioning & Regression Trees |
 |        |                                           |
 
+  
+###Principal Component Analysis & Cross Validation
 ```{r echo=T, cache=T, eval=F}
 #   Pre-Processing & Cross Validation Settings
     trControl <- trainControl(method="cv", number=7, verboseIter=F, preProcOptions="pca",
         allowParallel=T);
-
-#   Model Development & Analysis
+```
+Principal Component Analysis (PCA) was be used during pre-processing as several variables were highly correlated.  In additon, 7-fold cross validation was used in order to minimize overfitting and reduce the out of sample error rate. 
+  
+  
+###Model Development
+```{r echo=T, cache=T, eval=F}
+#   Model Development
     rf <- train(classe~., data=training, method="rf", 
         trControl=trControl);  # Random Forest
     svmLinear <- train(classe~., data=training, method="svmLinear", 
@@ -132,7 +133,7 @@ A total of seven (7) modeling methodlogies were evaluted:
         trControl=trControl);  # Recursive Partitioning & Regression Trees  
 ```
 
-
+  
 ####Model Analysis
 ```{r echo=T, cache=T, eval=F}
 #   Model Accuracy
@@ -144,9 +145,9 @@ A total of seven (7) modeling methodlogies were evaluted:
     max(logitBoosted$results$Accuracy);  # Logit Boosted Model
     max(rpart$results$Accuracy);  # Recursive Partitioning & Regression Trees
 ```
-
-**Rank Order by Accuracy**
-
+  
+Each model was rank ordered in terms of accuracy:
+  
 | Rank | Model                                     | Accuracy  |
 |:-----|:------------------------------------------|:----------|
 | 1    | Random Forest                             | 0.9894700 |
@@ -159,7 +160,7 @@ A total of seven (7) modeling methodlogies were evaluted:
 |      |                                           |           |
 
 The Random Forest model has the highest accuracy with 98.95%.
-
+  
 ####Out of Sample Error
 ```{r echo=T, cache=T, eval=F}
 #   Prediction on Test Set: Top 3 Models
@@ -186,11 +187,9 @@ The Random Forest model has the highest accuracy with 98.95%.
     sum(testSetResults$svmRadialPredRight, na.rm=T)/dim(testSetResults)[1];
     sum(testSetResults$logitBoostedPredRight, na.rm=T)/dim(testSetResults)[1];
 ```
-
+  
 The top three (3) performaing models in terms of accuracy are as follows:
-
-**Top Performing Models**
-
+  
 | Rank | Model                                     | Accuracy  |
 |:-----|:------------------------------------------|:----------|
 | 1    | Random Forest                             | 0.9900586 |
@@ -198,6 +197,7 @@ The top three (3) performaing models in terms of accuracy are as follows:
 | 3    | Logit Boosted Model                       | 0.7603875 |
 |      |                                           |           |
 
+  
 ####Model Validation
 ```{r echo=T, cache=F, eval=F}
 #   Validation Set
@@ -217,8 +217,7 @@ The top three (3) performaing models in terms of accuracy are as follows:
   
   
 ###Conclusion
-
+  
 ---
-
+  
 The Random Forest model has the highest accuracy for both the training and test sets with 98.95% and 99.00% respectively.
-
