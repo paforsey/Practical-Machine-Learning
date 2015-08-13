@@ -193,7 +193,7 @@ The top three (3) performaing models in terms of accuracy are as follows:
 | Rank | Model                                     | Accuracy  |
 |:-----|:------------------------------------------|:----------|
 | 1    | Random Forest                             | 0.9900586 |
-| 2    | Suppoart Vector Machine - Radial          | 0.9209788 |
+| 2    | Support Vector Machine - Radial           | 0.9209788 |
 | 3    | Logit Boosted Model                       | 0.7603875 |
 |      |                                           |           |
 
